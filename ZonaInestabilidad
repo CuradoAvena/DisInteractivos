@@ -1,0 +1,21 @@
+public class ZonaInestabilidad : MonoBehaviour
+{
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Pelota"))
+        {
+            // Aquí puedes cambiar la física de la pelota.
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            rb.velocity *= 2; // Aumentar la velocidad al entrar en la zona de inestabilidad.
+            // También puedes agregar efectos visuales o sonoros.
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Pelota"))
+        {
+            Rigidbody rb = other.GetComponent<Rigidbody>();
+            rb.velocity /= 2; // Restaurar la velocidad al salir de la zona de inestabilidad.
+        }
+    }
