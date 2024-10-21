@@ -1,0 +1,23 @@
+public class ZonaActivacion : MonoBehaviour
+{
+    public GameObject laberintoAnterior; // Asigna el laberinto anterior en el Inspector
+    public GameObject laberintoNuevo; // Asigna el nuevo laberinto en el Inspector
+
+    private void Start()
+    {
+        // Asegúrate de que los laberintos estén desactivados al inicio
+        laberintoAnterior.SetActive(true); // Activar el laberinto inicial
+        laberintoNuevo.SetActive(false); // Asegurarse de que el nuevo laberinto esté desactivado
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Pelota"))
+        {
+            // Desactiva el laberinto anterior y activa el nuevo
+            laberintoAnterior.SetActive(false);
+            laberintoNuevo.SetActive(true);
+
+            Debug.Log("Laberinto activado!");
+        }
+    }
