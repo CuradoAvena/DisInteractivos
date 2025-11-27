@@ -1,0 +1,104 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement; 
+
+public class GameManager : MonoBehaviour
+{
+    public static GameManager instance;
+
+    [Header("UI y Objetos")]
+    public Image[] tachesUI;
+    public GameObject panelDerrota;
+    public GameObject objetoFinalOculto; // El diario, la llave, etc.
+
+    [Header("Control")]
+    public ControlDiorama controlDiorama; // Tu script de la cámara
+    public int intentosMaximos = 3;
+    
+    // INSTRUCCIÓN:
+    // - Si es Individual o la Última Escena: Déjalo VACÍO.
+    // - Si es la Escena 1 de un Equipo: Escribe el nombre de la siguiente escena.
+    public string nombreSiguienteNivel;
+
+    private int erroresCometidos = 0;
+    private int aciertosCometidos = 0;
+    private int aciertosParaGanar; // Se calcula solo al iniciar
+
+    void Awake()
+    {
+        if (instance == null) instance = this;
+        else Destroy(gameObject);
+    }
+
+    void Start()
+    {
+        // 1. Cuenta automática de pistas en ESTA escena
+        // Busca todos los objetos que tengan el tag "Pista"
+        GameObject[] pistasEnEscena = GameObject.FindGameObjectsWithTag("Pista");
+        aciertosParaGanar = pistasEnEscena.Length;
+
+        Debug.Log("Meta del nivel calculada: " + aciertosParaGanar + " pistas.");
+    }
+
+    public void RegistrarError()
+    {
+        if (erroresCometidos >= intentosMaximos) return;
+
+        // Pinta el tache de rojo
+        if (erroresCometidos < tachesUI.Length)
+            tachesUI[erroresCometidos].color = Color.red;
+        
+        erroresCometidos++;
+
+        // Checar Derrota
+        if (erroresCometidos >= intentosMaximos)
+        {
+            Debug.Log("¡Juego Terminado!");
+            if (panelDerrota != null) panelDerrota.SetActive(true);
+            if (controlDiorama != null) controlDiorama.enabled = false; // Congela la cámara
+        }
+    }
+
+    public void RegistrarAcierto()
+    {
+        // Si ya ganamos, no seguir contando
+        if (aciertosCometidos >= aciertosParaGanar) return;
+
+        aciertosCometidos++;
+        Debug.Log("Acierto " + aciertosCometidos + " de " + aciertosParaGanar);
+
+        // 2. ¿Llegamos a la meta de ESTA escena?
+        if (aciertosCometidos >= aciertosParaGanar)
+        {
+            // LÓGICA INTELIGENTE:
+            
+            // ¿El campo de texto está vacío? -> Entonces es el FINAL.
+            if (string.IsNullOrEmpty(nombreSiguienteNivel))
+            {
+                Debug.Log("No hay siguiente nivel. Revelando Objeto Final.");
+                if (objetoFinalOculto != null)
+                {
+                    objetoFinalOculto.SetActive(true);
+                }
+            }
+            // ¿Tiene nombre? -> Entonces cargamos la SIGUIENTE ESCENA.
+            else
+            {
+                Debug.Log("Cargando siguiente nivel: " + nombreSiguienteNivel);
+                SceneManager.LoadScene(nombreSiguienteNivel);
+            }
+        }
+    }
+    
+    // Función para el botón "Continuar" del Panel Final (si lo usas)
+    public void IrAlSiguienteNivel()
+    {
+        SceneManager.LoadScene(nombreSiguienteNivel);
+    }
+
+    // Función para el botón "Reiniciar"
+    public void ReiniciarJuego()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+}
