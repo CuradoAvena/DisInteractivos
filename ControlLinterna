@@ -1,0 +1,24 @@
+using UnityEngine;
+
+public class ControlLinterna : MonoBehaviour
+{
+    public Camera miCamara;
+    public float distanciaDesdeCamara = 5.0f; // Qué tan lejos flota la luz
+    public float suavizado = 5.0f; // Para que no se mueva robótico
+
+    void Update()
+    {
+        // 1. Convertimos la posición 2D del mouse (X,Y) a un Rayo 3D
+        Ray rayo = miCamara.ScreenPointToRay(Input.mousePosition);
+
+        // 2. Calculamos dónde queremos la luz.
+        // "GetPoint" nos da una posición en el mundo a X distancia de la cámara a lo largo del rayo
+        Vector3 objetivo = rayo.GetPoint(distanciaDesdeCamara);
+
+        // 3. Movemos la luz suavemente hacia ese punto (Lerp)
+        transform.position = Vector3.Lerp(transform.position, objetivo, Time.deltaTime * suavizado);
+
+        // 4. (Opcional) Hacemos que la luz siempre mire hacia adelante o hacia el objeto
+        // transform.LookAt(Vector3.zero); // Descomenta esto si quieres que apunte siempre al centro
+    }
+}
