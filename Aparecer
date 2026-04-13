@@ -1,0 +1,61 @@
+using UnityEngine;
+using System.Collections;
+
+public class EfectoAparecer : MonoBehaviour
+{
+    [Header("Configuración del Shader")]
+    public string nombrePropiedad = "_DissolveAmount"; 
+    public float duracionEfecto = 3.0f;
+    
+    [Tooltip("El valor donde el objeto es invisible (ej. 0.4 o 1)")]
+    public float valorInvisible = 1f;
+    
+    [Tooltip("El valor donde el objeto es totalmente visible (ej. 0)")]
+    public float valorVisible = 0f;
+
+    private Material materialObjeto;
+
+    void Start()
+    {
+        if (GetComponent<Renderer>() != null)
+        {
+            materialObjeto = GetComponent<Renderer>().material;
+            
+            // Magia pura: Forzamos a que el objeto empiece invisible 
+            // desde el frame 1 en cuanto cargas la escena
+            materialObjeto.SetFloat(nombrePropiedad, valorInvisible);
+        }
+    }
+
+    // Esta es la función que conectarás en tu UnityEvent
+    public void IniciarAparicion()
+    {
+        if (materialObjeto != null)
+        {
+            StartCoroutine(CorrutinaAparecer());
+        }
+    }
+
+    IEnumerator CorrutinaAparecer()
+    {
+        float tiempo = 0f;
+        
+        while (tiempo < duracionEfecto)
+        {
+            tiempo += Time.deltaTime;
+            float porcentaje = tiempo / duracionEfecto;
+
+            // Lerp ahora viaja desde el valor invisible hacia el visible
+            float valorActual = Mathf.Lerp(valorInvisible, valorVisible, porcentaje);
+            
+            materialObjeto.SetFloat(nombrePropiedad, valorActual);
+            
+            yield return null; 
+        }
+        
+        // Aseguramos que el shader quede exactamente en el número de "visible"
+        materialObjeto.SetFloat(nombrePropiedad, valorVisible);
+        
+        // ¡OJO! Aquí YA NO hay Destroy(gameObject), porque queremos que el objeto se quede
+    }
+}
